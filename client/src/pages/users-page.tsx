@@ -99,8 +99,13 @@ const userFormSchema = z.object({
 });
 
 // Schema for editing (password is optional)
-const userEditSchema = userFormSchema.extend({
+const userEditSchema = z.object({
+  username: z.string().min(1, "Username is required"),
+  fullName: z.string().min(1, "Full name is required"),
+  email: z.string().email("Invalid email address"),
   password: z.string().optional(),
+  passwordConfirm: z.string().optional(),
+  role: z.enum(["admin", "staff"]).default("staff"),
 }).refine(data => {
   // Only validate passwords match if password is provided
   if (data.password) {
