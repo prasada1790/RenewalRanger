@@ -122,8 +122,15 @@ export class DatabaseStorage implements IStorage {
   }
   
   async deleteUser(id: number): Promise<boolean> {
-    const result = await db.delete(users).where(eq(users.id, id));
-    return true;
+    // First check if user exists
+    const user = await this.getUser(id);
+    if (!user) return false;
+    
+    await db.delete(users).where(eq(users.id, id));
+    
+    // Verify deletion
+    const deletedUser = await this.getUser(id);
+    return deletedUser === undefined;
   }
   
   // Client operations
@@ -162,16 +169,21 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createItemType(itemType: InsertItemType): Promise<ItemType> {
-    // Ensure reminder intervals is an array
     const data = {
       ...itemType,
       defaultReminderIntervals: Array.isArray(itemType.defaultReminderIntervals) 
-        ? itemType.defaultReminderIntervals 
-        : JSON.parse(itemType.defaultReminderIntervals as string)
+        ? JSON.stringify(itemType.defaultReminderIntervals)
+        : typeof itemType.defaultReminderIntervals === 'string'
+          ? itemType.defaultReminderIntervals
+          : JSON.stringify([30, 15, 7])
     };
     const result = await db.insert(itemTypes).values(data);
     const insertId = Number(result[0].insertId);
-    return await this.getItemType(insertId) as ItemType;
+    const createdType = await this.getItemType(insertId);
+    return {
+      ...createdType,
+      defaultReminderIntervals: JSON.parse(createdType.defaultReminderIntervals as string)
+    } as ItemType;
   }
   
   async updateItemType(id: number, data: Partial<InsertItemType>): Promise<ItemType | undefined> {
