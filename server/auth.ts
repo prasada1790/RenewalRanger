@@ -97,11 +97,8 @@ export function setupAuth(app: Express) {
       // Remove password from the response
       const { password, ...userWithoutPassword } = user;
 
-      // Auto-login after registration
-      req.login(user, (err) => {
-        if (err) return next(err);
-        res.status(201).json(userWithoutPassword);
-      });
+      // Return user without password
+      res.status(201).json(userWithoutPassword);
     } catch (err) {
       next(err);
     }
