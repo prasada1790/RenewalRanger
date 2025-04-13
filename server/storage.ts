@@ -198,11 +198,13 @@ export class DatabaseStorage implements IStorage {
   async getItemType(id: number): Promise<ItemType | undefined> {
     const [itemType] = await db.select().from(itemTypes).where(eq(itemTypes.id, id));
     if (itemType) {
+      const intervals = typeof itemType.defaultReminderIntervals === 'string' 
+        ? JSON.parse(itemType.defaultReminderIntervals)
+        : itemType.defaultReminderIntervals;
+      
       return {
         ...itemType,
-        defaultReminderIntervals: Array.isArray(itemType.defaultReminderIntervals) 
-          ? itemType.defaultReminderIntervals 
-          : JSON.parse(itemType.defaultReminderIntervals as string)
+        defaultReminderIntervals: intervals || []
       };
     }
     return undefined;
@@ -365,6 +367,13 @@ export class DatabaseStorage implements IStorage {
       .from(reminderLogs)
       .where(eq(reminderLogs.renewableId, renewableId))
       .orderBy(desc(reminderLogs.sentAt));
+  }
+
+  async getRecentReminderLogs(): Promise<ReminderLog[]> {
+    return await db.select()
+      .from(reminderLogs)
+      .orderBy(desc(reminderLogs.sentAt))
+      .limit(50);
   }
 
   // Dashboard stats

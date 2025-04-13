@@ -471,10 +471,10 @@ export default function SettingsPage() {
                               <SelectValue placeholder="Select currency" />
                             </SelectTrigger>
                             <SelectContent>
+                              <SelectItem value="INR">INR (₹)</SelectItem>
                               <SelectItem value="USD">USD ($)</SelectItem>
                               <SelectItem value="EUR">EUR (€)</SelectItem>
                               <SelectItem value="GBP">GBP (£)</SelectItem>
-                              <SelectItem value="INR">INR (₹)</SelectItem>
                             </SelectContent>
                           </Select>
                         </FormItem>
