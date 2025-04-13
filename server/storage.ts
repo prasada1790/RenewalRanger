@@ -162,16 +162,16 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createItemType(itemType: InsertItemType): Promise<ItemType> {
-    const [newItemType] = await db.insert(itemTypes).values(itemType).returning();
-    return newItemType;
+    const result = await db.insert(itemTypes).values(itemType);
+    const insertId = Number(result[0].insertId);
+    return await this.getItemType(insertId) as ItemType;
   }
   
   async updateItemType(id: number, data: Partial<InsertItemType>): Promise<ItemType | undefined> {
-    const [itemType] = await db.update(itemTypes)
+    await db.update(itemTypes)
       .set(data)
-      .where(eq(itemTypes.id, id))
-      .returning();
-    return itemType;
+      .where(eq(itemTypes.id, id));
+    return await this.getItemType(id);
   }
   
   async deleteItemType(id: number): Promise<boolean> {
