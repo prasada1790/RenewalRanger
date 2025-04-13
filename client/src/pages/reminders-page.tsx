@@ -76,7 +76,7 @@ export default function RemindersPage() {
         : '/api/reminder-logs/all'
     ],
     // If there's no specific API, we'll just show a message
-    enabled: renewableId !== null,
+    enabled: true,
   });
 
   // Query to get clients and item types for display

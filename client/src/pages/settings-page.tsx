@@ -170,7 +170,13 @@ export default function SettingsPage() {
   }
 
   function onNotificationsSubmit(data: z.infer<typeof notificationsFormSchema>) {
-    notificationsMutation.mutate(data);
+    const { defaultCurrency, ...notificationSettings } = data;
+    
+    // Update both notifications and currency settings
+    notificationsMutation.mutate({
+      ...notificationSettings,
+      defaultCurrency
+    });
   }
 
   return (

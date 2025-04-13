@@ -114,6 +114,11 @@ export default function DashboardPage() {
 
 
   // Calculate real distribution data
+  // Query all renewables
+  const { data: renewables = [] } = useQuery({
+    queryKey: ["/api/renewables"],
+  });
+
   const distributionData = itemTypes?.map((type, index) => {
     const typeRenewables = renewables.filter((r: any) => r.typeId === type.id);
     const percentage = renewables.length ? Math.round((typeRenewables.length / renewables.length) * 100) : 0;
