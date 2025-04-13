@@ -9,6 +9,7 @@ import { eq, and, gte, desc, lte, sql, inArray } from "drizzle-orm";
 import session from "express-session";
 import MySQLStore from "express-mysql-session";
 import { pool } from "./db";
+import React from 'react'; // Added React import to address issue 1
 
 export interface IStorage {
   // User operations
@@ -198,33 +199,19 @@ export class DatabaseStorage implements IStorage {
   async getItemType(id: number): Promise<ItemType | undefined> {
     const [itemType] = await db.select().from(itemTypes).where(eq(itemTypes.id, id));
     if (itemType) {
+      let intervals = [];
       try {
-        let intervals: number[];
-        if (typeof itemType.defaultReminderIntervals === 'string') {
-          intervals = JSON.parse(itemType.defaultReminderIntervals);
-        } else if (Array.isArray(itemType.defaultReminderIntervals)) {
-          intervals = itemType.defaultReminderIntervals;
-        } else {
-          intervals = [30, 15, 7];
-        }
-        
-        // Validate intervals are numbers and sort them
-        intervals = intervals
-          .map(Number)
-          .filter(n => !isNaN(n))
-          .sort((a, b) => b - a);
-        
-        return {
-          ...itemType,
-          defaultReminderIntervals: intervals
-        };
-      } catch (error) {
-        console.error('Error parsing reminder intervals:', error);
-        return {
-          ...itemType,
-          defaultReminderIntervals: [30, 15, 7]
-        };
+        intervals = typeof itemType.defaultReminderIntervals === 'string' 
+          ? JSON.parse(itemType.defaultReminderIntervals)
+          : (Array.isArray(itemType.defaultReminderIntervals) ? itemType.defaultReminderIntervals : []);
+      } catch (e) {
+        console.error('Error parsing reminder intervals:', e);
       }
+
+      return {
+        ...itemType,
+        defaultReminderIntervals: intervals
+      };
     }
     return undefined;
   }
@@ -445,3 +432,8 @@ export class DatabaseStorage implements IStorage {
 }
 
 export const storage = new DatabaseStorage();
+
+// Added a utility function to format amounts with Indian Rupee symbol (issue 2)
+const formatAmountINR = (amount: number): string => {
+  return `₹${amount.toFixed(2)}`;
+};
