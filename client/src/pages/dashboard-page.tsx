@@ -56,14 +56,14 @@ export default function DashboardPage() {
     const client = clients?.find((c: any) => c.id === renewal.clientId);
     const itemType = itemTypes?.find((t: any) => t.id === renewal.typeId);
     const assignedTo = users?.find((u: any) => u.id === renewal.assignedToId);
-    
+
     const now = new Date();
     const endDate = new Date(renewal.endDate);
     const daysLeft = differenceInDays(endDate, now);
-    
+
     let statusText = "";
     let statusClass = "";
-    
+
     if (daysLeft <= 0) {
       statusText = "Expired";
       statusClass = "bg-red-100 text-red-800";
@@ -77,7 +77,7 @@ export default function DashboardPage() {
       statusText = `In ${daysLeft} days`;
       statusClass = "bg-blue-100 text-blue-800";
     }
-    
+
     return {
       ...renewal,
       clientName: client?.name || "Unknown Client",
@@ -89,7 +89,7 @@ export default function DashboardPage() {
       statusClass
     };
   }) || [];
-  
+
   // Prepare calendar data
   const calendarEvents = processedRenewals.map((renewal: any) => ({
     id: renewal.id,
@@ -99,41 +99,20 @@ export default function DashboardPage() {
     clientId: renewal.clientId,
     renewableId: renewal.id
   }));
-  
-  // Mock data for recent activity (would be replaced with real API data)
-  const recentActivity = [
-    {
-      type: "reminder",
-      message: "Renewal reminder sent for Acme Corp domain",
-      time: "2 hours ago",
-      icon: <Check className="h-5 w-5 text-green-500" />
-    },
-    {
-      type: "new",
-      message: "New client added: HealthPlus Inc",
-      time: "Yesterday, 4:23 PM",
-      icon: <Plus className="h-5 w-5 text-primary" />
-    },
-    {
-      type: "update",
-      message: "Renewal updated: TechSolutions Cloud Server",
-      time: "Yesterday, 1:15 PM",
-      icon: <Diff className="h-5 w-5 text-amber-500" />
-    },
-    {
-      type: "expired",
-      message: "Expired item: WebStore SSL Certificate",
-      time: "2 days ago",
-      icon: <Ban className="h-5 w-5 text-red-500" />
-    },
-    {
-      type: "completed",
-      message: "Renewal completed: Global Solutions annual license",
-      time: "3 days ago",
-      icon: <Check className="h-5 w-5 text-green-500" />
-    }
-  ];
-  
+
+  // Get recent activity from reminder logs
+  const { data: reminderLogs = [] } = useQuery({
+    queryKey: ["/api/reminder-logs/recent"],
+  });
+
+  const recentActivity = reminderLogs.map(log => ({
+    type: "reminder",
+    message: `Reminder sent for ${log.renewableName}`,
+    time: format(new Date(log.sentAt), 'PP'),
+    icon: <Check className="h-5 w-5 text-green-500" />
+  }));
+
+
   // Mock data for distribution chart (would be replaced with real API data)
   const distributionData = [
     { name: "Domain Names", percentage: 38, color: "bg-primary" },
@@ -142,7 +121,7 @@ export default function DashboardPage() {
     { name: "Annual Maintenance", percentage: 12, color: "bg-red-500" },
     { name: "Software Licenses", percentage: 10, color: "bg-purple-500" }
   ];
-  
+
   const handleCalendarEventClick = (event: any) => {
     toast({
       title: "Renewal Selected",

@@ -111,9 +111,9 @@ export const reminderLogsRelations = relations(reminderLogs, ({ one }) => ({
 export const insertUserSchema = createInsertSchema(users)
   .omit({ id: true, createdAt: true })
   .extend({
-    passwordConfirm: z.string(),
+    passwordConfirm: z.string().optional(),
   })
-  .refine(data => data.password === data.passwordConfirm, {
+  .refine(data => !data.password || data.password === data.passwordConfirm, {
     message: "Passwords do not match",
     path: ["passwordConfirm"]
   });

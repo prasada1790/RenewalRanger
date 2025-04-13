@@ -18,10 +18,10 @@ interface HeaderProps {
 export function Header({ openMobileMenu }: HeaderProps) {
   const { user, logoutMutation } = useAuth();
   const [location] = useLocation();
-  
+
   // Don't render on auth page
   if (location === "/auth") return null;
-  
+
   // Get current page title based on route
   let pageTitle = "Dashboard";
   if (location === "/clients") pageTitle = "Clients";
@@ -30,11 +30,11 @@ export function Header({ openMobileMenu }: HeaderProps) {
   if (location === "/reminders") pageTitle = "Reminders";
   if (location === "/users") pageTitle = "Users";
   if (location === "/settings") pageTitle = "Settings";
-  
+
   const handleLogout = () => {
     logoutMutation.mutate();
   };
-  
+
   return (
     <header className="bg-white border-b border-gray-200">
       <div className="px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
@@ -56,7 +56,7 @@ export function Header({ openMobileMenu }: HeaderProps) {
               </Badge>
             </button>
           </div>
-          
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="flex items-center text-sm focus:outline-none" aria-expanded="false">

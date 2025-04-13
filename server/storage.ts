@@ -162,7 +162,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createItemType(itemType: InsertItemType): Promise<ItemType> {
-    const result = await db.insert(itemTypes).values(itemType);
+    // Ensure reminder intervals is an array
+    const data = {
+      ...itemType,
+      defaultReminderIntervals: Array.isArray(itemType.defaultReminderIntervals) 
+        ? itemType.defaultReminderIntervals 
+        : JSON.parse(itemType.defaultReminderIntervals as string)
+    };
+    const result = await db.insert(itemTypes).values(data);
     const insertId = Number(result[0].insertId);
     return await this.getItemType(insertId) as ItemType;
   }
