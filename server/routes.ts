@@ -7,7 +7,8 @@ import { fromZodError } from "zod-validation-error";
 import { 
   insertClientSchema,
   insertItemTypeSchema,
-  insertRenewableSchema
+  insertRenewableSchema,
+  profileFormSchema
 } from "@shared/schema";
 import { setupReminderCron, triggerReminders } from "./reminders";
 

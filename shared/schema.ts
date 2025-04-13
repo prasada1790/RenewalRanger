@@ -154,6 +154,13 @@ export type Renewable = typeof renewables.$inferSelect;
 export type InsertReminderLog = z.infer<typeof insertReminderLogSchema>;
 export type ReminderLog = typeof reminderLogs.$inferSelect;
 
+// Profile schema (for profile updates)
+export const profileFormSchema = z.object({
+  username: z.string().min(1, "Username is required"),
+  fullName: z.string().min(1, "Full name is required"),
+  email: z.string().email("Invalid email address"),
+});
+
 // Login schema (for login form)
 export const loginSchema = z.object({
   username: z.string().min(1, "Username is required"),
