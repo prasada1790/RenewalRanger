@@ -705,7 +705,7 @@ export default function RenewalsPage() {
                         <TableCell>{renewal.typeName}</TableCell>
                         <TableCell>{renewal.startDateFormatted}</TableCell>
                         <TableCell>{renewal.endDateFormatted}</TableCell>
-                        <TableCell>{renewal.amount ? `$${renewal.amount.toFixed(2)}` : '-'}</TableCell>
+                        <TableCell>{renewal.amount ? `₹${renewal.amount.toFixed(2)}` : '-'}</TableCell>
                         <TableCell>
                           <Badge variant="outline" className={renewal.statusClass}>
                             {renewal.statusText}
