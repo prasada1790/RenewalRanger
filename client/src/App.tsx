@@ -10,7 +10,7 @@ import RenewalsPage from "@/pages/renewals-page";
 import ItemTypesPage from "@/pages/item-types-page";
 import RemindersPage from "@/pages/reminders-page";
 import UsersPage from "@/pages/users-page";
-// import SettingsPage from "@/pages/settings-page"; // Removed import
+import SettingsPage from "@/pages/settings-page";
 import { ProtectedRoute, AdminRoute } from "./lib/protected-route";
 import { AuthProvider } from "./hooks/use-auth";
 
