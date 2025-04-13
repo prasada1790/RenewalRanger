@@ -9,7 +9,7 @@ import { eq, and, gte, desc, lte, sql, inArray } from "drizzle-orm";
 import session from "express-session";
 import MySQLStore from "express-mysql-session";
 import { pool } from "./db";
-import React from 'react'; // Added React import to address issue 1
+import { hashPassword } from "./auth";
 
 export interface IStorage {
   // User operations
