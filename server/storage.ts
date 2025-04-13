@@ -198,14 +198,24 @@ export class DatabaseStorage implements IStorage {
   async getItemType(id: number): Promise<ItemType | undefined> {
     const [itemType] = await db.select().from(itemTypes).where(eq(itemTypes.id, id));
     if (itemType) {
-      const intervals = typeof itemType.defaultReminderIntervals === 'string' 
-        ? JSON.parse(itemType.defaultReminderIntervals)
-        : itemType.defaultReminderIntervals;
-      
-      return {
-        ...itemType,
-        defaultReminderIntervals: intervals || []
-      };
+      try {
+        const intervals = typeof itemType.defaultReminderIntervals === 'string' 
+          ? JSON.parse(itemType.defaultReminderIntervals)
+          : Array.isArray(itemType.defaultReminderIntervals) 
+            ? itemType.defaultReminderIntervals 
+            : [30, 15, 7];
+        
+        return {
+          ...itemType,
+          defaultReminderIntervals: intervals
+        };
+      } catch (error) {
+        console.error('Error parsing reminder intervals:', error);
+        return {
+          ...itemType,
+          defaultReminderIntervals: [30, 15, 7]
+        };
+      }
     }
     return undefined;
   }

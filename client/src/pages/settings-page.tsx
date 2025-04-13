@@ -170,14 +170,17 @@ export default function SettingsPage() {
   }
 
   function onNotificationsSubmit(data: z.infer<typeof notificationsFormSchema>) {
-    const { defaultCurrency, ...notificationSettings } = data;
-    
-    // Update both notifications and currency settings
-    notificationsMutation.mutate({
-      ...notificationSettings,
-      defaultCurrency
-    });
+    notificationsMutation.mutate(data);
   }
+
+  // Set initial form values
+  React.useEffect(() => {
+    if (user?.settings?.defaultCurrency) {
+      notificationsForm.setValue('defaultCurrency', user.settings.defaultCurrency);
+    } else {
+      notificationsForm.setValue('defaultCurrency', 'INR');
+    }
+  }, [user]);
 
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">

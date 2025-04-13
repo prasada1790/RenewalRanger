@@ -71,10 +71,9 @@ export default function RemindersPage() {
     error: logsError
   } = useQuery({
     queryKey: [
-      '/api/reminder-logs',
-      renewableId
+      '/api/reminder-logs/recent', //This line is changed.
     ],
-    enabled: renewableFilter !== 'all',
+    enabled: true,
   });
 
   // Query to get clients and item types for display
@@ -97,7 +96,7 @@ export default function RemindersPage() {
         title: "Reminders triggered",
         description: "Reminder check has been manually triggered.",
       });
-      
+
       if (renewableId) {
         queryClient.invalidateQueries({ queryKey: [`/api/reminder-logs/${renewableId}`] });
       }
@@ -298,7 +297,7 @@ export default function RemindersPage() {
                   {selectedLog && `Sent on ${selectedLog.sentAtFormatted}`}
                 </DialogDescription>
               </DialogHeader>
-              
+
               {selectedLog && (
                 <div className="mt-4 space-y-4">
                   <div className="grid grid-cols-2 gap-4">
@@ -323,7 +322,7 @@ export default function RemindersPage() {
                       <p className="text-sm">{selectedLog.daysBeforeExpiry} days</p>
                     </div>
                   </div>
-                  
+
                   <div>
                     <p className="text-sm font-medium text-gray-500 mb-2">Email Content</p>
                     <Card>
@@ -334,7 +333,7 @@ export default function RemindersPage() {
                   </div>
                 </div>
               )}
-              
+
               <DialogFooter>
                 <Button onClick={() => setIsViewDialogOpen(false)}>Close</Button>
               </DialogFooter>
