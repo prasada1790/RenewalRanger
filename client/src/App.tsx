@@ -10,7 +10,7 @@ import RenewalsPage from "@/pages/renewals-page";
 import ItemTypesPage from "@/pages/item-types-page";
 import RemindersPage from "@/pages/reminders-page";
 import UsersPage from "@/pages/users-page";
-import SettingsPage from "@/pages/settings-page";
+// import SettingsPage from "@/pages/settings-page"; // Removed import
 import { ProtectedRoute, AdminRoute } from "./lib/protected-route";
 import { AuthProvider } from "./hooks/use-auth";
 
@@ -23,7 +23,7 @@ function Router() {
       <ProtectedRoute path="/item-types" component={ItemTypesPage} />
       <ProtectedRoute path="/reminders" component={RemindersPage} />
       <AdminRoute path="/users" component={UsersPage} />
-      <ProtectedRoute path="/settings" component={SettingsPage} />
+      {/* Removed settings route */}
       <Route path="/auth" component={AuthPage} />
       <Route component={NotFound} />
     </Switch>
