@@ -11,6 +11,7 @@ import {
   profileFormSchema
 } from "@shared/schema";
 import { setupReminderCron, triggerReminders } from "./reminders";
+import { comparePasswords, hashPassword } from "./auth";
 
 // Helper for handling async routes with error handling
 const asyncHandler = (fn: (req: Request, res: Response) => Promise<any>) => 
