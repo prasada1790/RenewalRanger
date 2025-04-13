@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS renewables (
   assigned_to_id INT,
   start_date TIMESTAMP NOT NULL,
   end_date TIMESTAMP NOT NULL,
+  amount INT,
   reminder_intervals JSON,
   notes VARCHAR(1000),
   status ENUM('active', 'renewed', 'expired', 'cancelled') NOT NULL DEFAULT 'active',

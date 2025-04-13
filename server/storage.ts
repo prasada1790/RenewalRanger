@@ -197,19 +197,25 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createRenewable(renewable: InsertRenewable): Promise<Renewable> {
-    const [newRenewable] = await db.insert(renewables).values(renewable).returning();
-    return newRenewable;
+    const result = await db.insert(renewables).values({
+      ...renewable,
+      startDate: new Date(renewable.startDate),
+      endDate: new Date(renewable.endDate)
+    });
+    const insertId = Number(result[0].insertId);
+    return await this.getRenewable(insertId) as Renewable;
   }
   
   async updateRenewable(id: number, data: Partial<InsertRenewable>): Promise<Renewable | undefined> {
-    const [renewable] = await db.update(renewables)
+    await db.update(renewables)
       .set({
         ...data,
-        updatedAt: new Date()
+        updatedAt: new Date(),
+        startDate: data.startDate ? new Date(data.startDate) : undefined,
+        endDate: data.endDate ? new Date(data.endDate) : undefined
       })
-      .where(eq(renewables.id, id))
-      .returning();
-    return renewable;
+      .where(eq(renewables.id, id));
+    return await this.getRenewable(id);
   }
   
   async deleteRenewable(id: number): Promise<boolean> {

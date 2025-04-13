@@ -125,7 +125,11 @@ export const insertItemTypeSchema = createInsertSchema(itemTypes)
   .omit({ id: true, createdAt: true });
 
 export const insertRenewableSchema = createInsertSchema(renewables)
-  .omit({ id: true, createdAt: true, updatedAt: true });
+  .omit({ id: true, createdAt: true, updatedAt: true })
+  .extend({
+    startDate: z.coerce.date(),
+    endDate: z.coerce.date()
+  });
 
 export const insertReminderLogSchema = createInsertSchema(reminderLogs)
   .omit({ id: true, sentAt: true });
