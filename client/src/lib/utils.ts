@@ -1,4 +1,7 @@
 
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
 export function calculateTrendFromPreviousMonth(current: number, previous: number | undefined): { value: string; direction: "up" | "down" | "neutral"; label: string } | undefined {
   if (typeof current !== 'number' || typeof previous !== 'number') {
     return undefined;
@@ -18,9 +21,6 @@ export function calculateTrendFromPreviousMonth(current: number, previous: numbe
   };
 }
 
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
-
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
