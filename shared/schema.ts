@@ -56,6 +56,7 @@ export const renewables = mysqlTable("renewables", {
   assignedToId: int("assigned_to_id").references(() => users.id, { onDelete: 'set null' }),
   startDate: timestamp("start_date").notNull(),
   endDate: timestamp("end_date").notNull(),
+  amount: int("amount"), // Amount to renew
   reminderIntervals: json("reminder_intervals"), // null means use defaults
   notes: varchar("notes", { length: 1000 }),
   status: mysqlEnum("status", ["active", "renewed", "expired", "cancelled"]).notNull().default("active"),
