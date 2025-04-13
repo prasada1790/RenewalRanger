@@ -7,10 +7,8 @@ import {
 import { db } from "./db";
 import { eq, and, gte, desc, lte, sql, inArray } from "drizzle-orm";
 import session from "express-session";
-import connectPg from "connect-pg-simple";
+import MySQLStore from "express-mysql-session";
 import { pool } from "./db";
-
-const PostgresSessionStore = connectPg(session);
 
 export interface IStorage {
   // User operations
@@ -69,9 +67,23 @@ export class DatabaseStorage implements IStorage {
   sessionStore: session.Store;
   
   constructor() {
-    this.sessionStore = new PostgresSessionStore({ 
-      pool,
-      createTableIfMissing: true
+    // Create MySQL session store
+    const MySQLSessionStore = MySQLStore(session);
+    this.sessionStore = new MySQLSessionStore({
+      host: '217.21.74.127',
+      port: 3306,
+      user: 'u856729253_renew_user',
+      password: 'Coinage@1790',
+      database: 'u856729253_renew',
+      createDatabaseTable: true,
+      schema: {
+        tableName: 'sessions',
+        columnNames: {
+          session_id: 'session_id',
+          expires: 'expires',
+          data: 'data'
+        }
+      }
     });
   }
   
@@ -92,8 +104,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const [user] = await db.insert(users).values(insertUser).returning();
-    return user;
+    const result = await db.insert(users).values(insertUser);
+    // MySql returns insertId from the query result directly
+    const insertId = Number(result[0].insertId);
+    return await this.getUser(insertId) as User;
   }
   
   async getAllUsers(): Promise<User[]> {
@@ -101,11 +115,10 @@ export class DatabaseStorage implements IStorage {
   }
   
   async updateUser(id: number, data: Partial<InsertUser>): Promise<User | undefined> {
-    const [user] = await db.update(users)
+    await db.update(users)
       .set(data)
-      .where(eq(users.id, id))
-      .returning();
-    return user;
+      .where(eq(users.id, id));
+    return await this.getUser(id);
   }
   
   async deleteUser(id: number): Promise<boolean> {
@@ -120,16 +133,17 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createClient(client: InsertClient): Promise<Client> {
-    const [newClient] = await db.insert(clients).values(client).returning();
-    return newClient;
+    const result = await db.insert(clients).values(client);
+    // MySql returns insertId from the query result directly
+    const insertId = Number(result[0].insertId);
+    return await this.getClient(insertId) as Client;
   }
   
   async updateClient(id: number, data: Partial<InsertClient>): Promise<Client | undefined> {
-    const [client] = await db.update(clients)
+    await db.update(clients)
       .set(data)
-      .where(eq(clients.id, id))
-      .returning();
-    return client;
+      .where(eq(clients.id, id));
+    return await this.getClient(id);
   }
   
   async deleteClient(id: number): Promise<boolean> {

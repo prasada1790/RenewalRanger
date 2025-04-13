@@ -1,16 +1,16 @@
-import { pgTable, text, serial, integer, boolean, timestamp, unique, primaryKey, json } from "drizzle-orm/pg-core";
+import { mysqlTable, varchar, int, mysqlEnum, timestamp, json, primaryKey } from "drizzle-orm/mysql-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
 
 // Users
-export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
-  fullName: text("full_name").notNull(),
-  email: text("email").notNull().unique(),
-  role: text("role", { enum: ["admin", "staff"] }).notNull().default("staff"),
+export const users = mysqlTable("users", {
+  id: int("id").primaryKey().autoincrement(),
+  username: varchar("username", { length: 255 }).notNull().unique(),
+  password: varchar("password", { length: 255 }).notNull(),
+  fullName: varchar("full_name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull().unique(),
+  role: mysqlEnum("role", ["admin", "staff"]).notNull().default("staff"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -20,13 +20,13 @@ export const usersRelations = relations(users, ({ many }) => ({
 }));
 
 // Clients
-export const clients = pgTable("clients", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  email: text("email").notNull(),
-  phone: text("phone"),
-  address: text("address"),
-  notes: text("notes"),
+export const clients = mysqlTable("clients", {
+  id: int("id").primaryKey().autoincrement(),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  phone: varchar("phone", { length: 255 }),
+  address: varchar("address", { length: 512 }),
+  notes: varchar("notes", { length: 1000 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -35,11 +35,11 @@ export const clientsRelations = relations(clients, ({ many }) => ({
 }));
 
 // Item Types
-export const itemTypes = pgTable("item_types", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull().unique(),
-  defaultRenewalPeriod: integer("default_renewal_period").notNull(), // in days
-  defaultReminderIntervals: json("default_reminder_intervals").$type<number[]>().notNull(),
+export const itemTypes = mysqlTable("item_types", {
+  id: int("id").primaryKey().autoincrement(),
+  name: varchar("name", { length: 255 }).notNull().unique(),
+  defaultRenewalPeriod: int("default_renewal_period").notNull(), // in days
+  defaultReminderIntervals: json("default_reminder_intervals").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -48,17 +48,17 @@ export const itemTypesRelations = relations(itemTypes, ({ many }) => ({
 }));
 
 // Renewables
-export const renewables = pgTable("renewables", {
-  id: serial("id").primaryKey(),
-  name: text("name").notNull(),
-  clientId: integer("client_id").notNull().references(() => clients.id, { onDelete: 'cascade' }),
-  typeId: integer("type_id").notNull().references(() => itemTypes.id, { onDelete: 'restrict' }),
-  assignedToId: integer("assigned_to_id").references(() => users.id, { onDelete: 'set null' }),
+export const renewables = mysqlTable("renewables", {
+  id: int("id").primaryKey().autoincrement(),
+  name: varchar("name", { length: 255 }).notNull(),
+  clientId: int("client_id").notNull().references(() => clients.id, { onDelete: 'cascade' }),
+  typeId: int("type_id").notNull().references(() => itemTypes.id, { onDelete: 'restrict' }),
+  assignedToId: int("assigned_to_id").references(() => users.id, { onDelete: 'set null' }),
   startDate: timestamp("start_date").notNull(),
   endDate: timestamp("end_date").notNull(),
-  reminderIntervals: json("reminder_intervals").$type<number[]>(), // null means use defaults
-  notes: text("notes"),
-  status: text("status", { enum: ["active", "renewed", "expired", "cancelled"] }).notNull().default("active"),
+  reminderIntervals: json("reminder_intervals"), // null means use defaults
+  notes: varchar("notes", { length: 1000 }),
+  status: mysqlEnum("status", ["active", "renewed", "expired", "cancelled"]).notNull().default("active"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -83,14 +83,14 @@ export const renewablesRelations = relations(renewables, ({ one, many }) => ({
 }));
 
 // Reminder Logs
-export const reminderLogs = pgTable("reminder_logs", {
-  id: serial("id").primaryKey(),
-  renewableId: integer("renewable_id").notNull().references(() => renewables.id, { onDelete: 'cascade' }),
-  sentToId: integer("sent_to_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
+export const reminderLogs = mysqlTable("reminder_logs", {
+  id: int("id").primaryKey().autoincrement(),
+  renewableId: int("renewable_id").notNull().references(() => renewables.id, { onDelete: 'cascade' }),
+  sentToId: int("sent_to_id").notNull().references(() => users.id, { onDelete: 'cascade' }),
   sentAt: timestamp("sent_at").defaultNow().notNull(),
-  daysBeforeExpiry: integer("days_before_expiry").notNull(),
-  emailContent: text("email_content").notNull(),
-  emailSentTo: text("email_sent_to").notNull(),
+  daysBeforeExpiry: int("days_before_expiry").notNull(),
+  emailContent: varchar("email_content", { length: 2000 }).notNull(),
+  emailSentTo: varchar("email_sent_to", { length: 255 }).notNull(),
 });
 
 export const reminderLogsRelations = relations(reminderLogs, ({ one }) => ({
