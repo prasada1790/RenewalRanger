@@ -176,14 +176,12 @@ export default function SettingsPage() {
   }
 
   function onNotificationsSubmit(data: z.infer<typeof notificationsFormSchema>) {
-    const { defaultCurrency, ...notificationSettings } = data;
-    
-    // Update both notifications and currency settings separately
     notificationsMutation.mutate({
-      ...notificationSettings,
+      reminderEmails: data.reminderEmails,
+      expiryWarnings: data.expiryWarnings,
+      systemUpdates: data.systemUpdates,
       settings: {
-        ...user?.settings,
-        defaultCurrency
+        defaultCurrency: data.defaultCurrency
       }
     });
   }
