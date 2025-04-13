@@ -135,6 +135,10 @@ export const insertReminderLogSchema = createInsertSchema(reminderLogs)
   .omit({ id: true, sentAt: true });
 
 // Types
+export const defaultCurrencySchema = z.object({
+  currency: z.string().min(1, "Currency is required"),
+});
+
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 

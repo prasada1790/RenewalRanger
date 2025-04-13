@@ -30,6 +30,7 @@ import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/use-auth";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // Profile update schema
 const profileFormSchema = z.object({
@@ -56,6 +57,7 @@ const notificationsFormSchema = z.object({
   reminderEmails: z.boolean().default(true),
   expiryWarnings: z.boolean().default(true),
   systemUpdates: z.boolean().default(false),
+  defaultCurrency: z.string().default("USD"), // Added default currency
 });
 
 export default function SettingsPage() {
@@ -90,6 +92,7 @@ export default function SettingsPage() {
       reminderEmails: true,
       expiryWarnings: true,
       systemUpdates: false,
+      defaultCurrency: "USD", // Added default currency
     },
   });
 
@@ -235,7 +238,7 @@ export default function SettingsPage() {
                             </FormItem>
                           )}
                         />
-                        
+
                         <FormField
                           control={profileForm.control}
                           name="email"
@@ -252,7 +255,7 @@ export default function SettingsPage() {
                             </FormItem>
                           )}
                         />
-                        
+
                         <div className="pt-4">
                           <Button 
                             type="submit" 
@@ -299,7 +302,7 @@ export default function SettingsPage() {
                             </FormItem>
                           )}
                         />
-                        
+
                         <FormField
                           control={passwordForm.control}
                           name="newPassword"
@@ -320,7 +323,7 @@ export default function SettingsPage() {
                             </FormItem>
                           )}
                         />
-                        
+
                         <FormField
                           control={passwordForm.control}
                           name="confirmPassword"
@@ -338,7 +341,7 @@ export default function SettingsPage() {
                             </FormItem>
                           )}
                         />
-                        
+
                         <div className="pt-4">
                           <Button 
                             type="submit" 
@@ -354,7 +357,7 @@ export default function SettingsPage() {
               </TabsContent>
 
               {/* Notifications Tab */}
-              <TabsContent value="notifications">
+              <TabsContent value="notifications" className="space-y-6">
                 <Card>
                   <CardHeader>
                     <CardTitle>Notification Preferences</CardTitle>
@@ -389,7 +392,7 @@ export default function SettingsPage() {
                               </FormItem>
                             )}
                           />
-                          
+
                           <FormField
                             control={notificationsForm.control}
                             name="expiryWarnings"
@@ -410,7 +413,7 @@ export default function SettingsPage() {
                               </FormItem>
                             )}
                           />
-                          
+
                           <FormField
                             control={notificationsForm.control}
                             name="systemUpdates"
@@ -432,7 +435,7 @@ export default function SettingsPage() {
                             )}
                           />
                         </div>
-                        
+
                         <div className="pt-4">
                           <Button 
                             type="submit" 
@@ -443,6 +446,34 @@ export default function SettingsPage() {
                         </div>
                       </form>
                     </Form>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Currency Settings</CardTitle>
+                    <CardDescription>Choose your default currency for the application</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <FormField
+                      control={notificationsForm.control}
+                      name="defaultCurrency"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Default Currency</FormLabel>
+                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select currency" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="USD">USD ($)</SelectItem>
+                              <SelectItem value="EUR">EUR (€)</SelectItem>
+                              <SelectItem value="GBP">GBP (£)</SelectItem>
+                              <SelectItem value="INR">INR (₹)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormItem>
+                      )}
+                    />
                   </CardContent>
                 </Card>
               </TabsContent>

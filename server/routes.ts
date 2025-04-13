@@ -222,7 +222,7 @@ export function registerRoutes(app: Express): Server {
   }));
 
   app.put('/api/users/profile', isAuthenticated, asyncHandler(async (req, res) => {
-    const data = insertUserSchema.partial().omit({ role: true }).parse(req.body);
+    const data = profileFormSchema.parse(req.body);
     const updatedUser = await storage.updateUser(req.user.id, data);
     if (!updatedUser) {
       return res.status(404).json({ message: 'User not found' });
