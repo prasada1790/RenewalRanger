@@ -123,7 +123,7 @@ export default function DashboardPage() {
   const distributionData = itemTypes?.map((type, index) => {
     const typeRenewables = renewables.filter((r: any) => r.typeId === type.id);
     const percentage = renewables.length ? Math.round((typeRenewables.length / renewables.length) * 100) : 0;
-    
+
     const colors = ["bg-primary", "bg-green-500", "bg-amber-500", "bg-red-500", "bg-purple-500"];
     return {
       name: type.name,
