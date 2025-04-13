@@ -29,11 +29,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
-const profileFormSchema = z.object({
-  username: z.string().min(1, "Username is required"),
-  fullName: z.string().min(1, "Full name is required"),
-  email: z.string().email("Invalid email address"),
-});
+
 
 const passwordFormSchema = z.object({
   currentPassword: z.string().min(1, "Current password is required"),
