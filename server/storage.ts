@@ -137,11 +137,28 @@ export class DatabaseStorage implements IStorage {
       const user = await this.getUser(id);
       if (!user) return false;
 
-      await db.delete(users).where(eq(users.id, id));
-
-      // Verify deletion
-      const deletedUser = await this.getUser(id);
-      return deletedUser === undefined;
+      // Start a transaction
+      const connection = await pool.getConnection();
+      try {
+        await connection.beginTransaction();
+        
+        // Update renewables to remove this user from assigned_to_id
+        await connection.query('UPDATE renewables SET assigned_to_id = NULL WHERE assigned_to_id = ?', [id]);
+        
+        // Delete reminder logs for this user
+        await connection.query('DELETE FROM reminder_logs WHERE sent_to_id = ?', [id]);
+        
+        // Delete the user
+        await connection.query('DELETE FROM users WHERE id = ?', [id]);
+        
+        await connection.commit();
+        return true;
+      } catch (err) {
+        await connection.rollback();
+        throw err;
+      } finally {
+        connection.release();
+      }
     } catch (error) {
       console.error('Error deleting user:', error);
       throw error;
@@ -184,21 +201,42 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createItemType(itemType: InsertItemType): Promise<ItemType> {
+    const reminderIntervals = Array.isArray(itemType.defaultReminderIntervals)
+      ? itemType.defaultReminderIntervals
+      : typeof itemType.defaultReminderIntervals === 'string'
+        ? JSON.parse(itemType.defaultReminderIntervals)
+        : [30, 15, 7];
+
     const data = {
       ...itemType,
-      defaultReminderIntervals: Array.isArray(itemType.defaultReminderIntervals) 
-        ? JSON.stringify(itemType.defaultReminderIntervals)
-        : typeof itemType.defaultReminderIntervals === 'string'
-          ? itemType.defaultReminderIntervals
-          : JSON.stringify([30, 15, 7])
+      defaultReminderIntervals: JSON.stringify(reminderIntervals)
     };
-    const result = await db.insert(itemTypes).values(data);
-    const insertId = Number(result[0].insertId);
-    const createdType = await this.getItemType(insertId);
-    return {
-      ...createdType,
-      defaultReminderIntervals: JSON.parse(createdType.defaultReminderIntervals as string)
-    } as ItemType;
+
+    const connection = await pool.getConnection();
+    try {
+      await connection.beginTransaction();
+      const [result] = await connection.query(
+        'INSERT INTO item_types (name, default_renewal_period, default_reminder_intervals) VALUES (?, ?, ?)',
+        [data.name, data.defaultRenewalPeriod, data.defaultReminderIntervals]
+      );
+      
+      const insertId = Number(result.insertId);
+      const [createdType] = await connection.query(
+        'SELECT * FROM item_types WHERE id = ?',
+        [insertId]
+      );
+      
+      await connection.commit();
+      return {
+        ...createdType[0],
+        defaultReminderIntervals: JSON.parse(createdType[0].default_reminder_intervals)
+      };
+    } catch (err) {
+      await connection.rollback();
+      throw err;
+    } finally {
+      connection.release();
+    }
   }
 
   async updateItemType(id: number, data: Partial<InsertItemType>): Promise<ItemType | undefined> {
