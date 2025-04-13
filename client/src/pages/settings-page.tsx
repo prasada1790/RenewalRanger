@@ -34,6 +34,15 @@ const profileFormSchema = z.object({
   email: z.string().email("Invalid email address"),
 });
 
+const passwordFormSchema = z.object({
+  currentPassword: z.string().min(1, "Current password is required"),
+  newPassword: z.string().min(8, "Password must be at least 8 characters"),
+  confirmPassword: z.string().min(1, "Please confirm your password"),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
 export default function SettingsPage() {
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   const { toast } = useToast();
@@ -48,9 +57,17 @@ export default function SettingsPage() {
     },
   });
 
+  const passwordForm = useForm<z.infer<typeof passwordFormSchema>>({
+    resolver: zodResolver(passwordFormSchema),
+  });
+
   const profileMutation = useMutation({
     mutationFn: async (data: z.infer<typeof profileFormSchema>) => {
       const res = await apiRequest("PUT", "/api/user/profile", data);
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || "Failed to update profile");
+      }
       return await res.json();
     },
     onSuccess: () => {
@@ -60,10 +77,38 @@ export default function SettingsPage() {
         description: "Your profile has been updated successfully.",
       });
     },
-    onError: () => {
+    onError: (error: Error) => {
       toast({
         title: "Error",
-        description: "Failed to update profile. Please try again.",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const passwordMutation = useMutation({
+    mutationFn: async (data: z.infer<typeof passwordFormSchema>) => {
+      const res = await apiRequest("PUT", "/api/user/password", {
+        currentPassword: data.currentPassword,
+        newPassword: data.newPassword,
+      });
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || "Failed to update password");
+      }
+      return await res.json();
+    },
+    onSuccess: () => {
+      passwordForm.reset();
+      toast({
+        title: "Password updated",
+        description: "Your password has been updated successfully.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
         variant: "destructive",
       });
     },
@@ -71,6 +116,10 @@ export default function SettingsPage() {
 
   function onProfileSubmit(data: z.infer<typeof profileFormSchema>) {
     profileMutation.mutate(data);
+  }
+
+  function onPasswordSubmit(data: z.infer<typeof passwordFormSchema>) {
+    passwordMutation.mutate(data);
   }
 
   return (
@@ -91,10 +140,10 @@ export default function SettingsPage() {
         <Header openMobileMenu={() => setShowMobileSidebar(true)} />
 
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
-          <div className="max-w-4xl mx-auto">
-            <h1 className="text-2xl font-semibold text-gray-900 mb-6">Settings</h1>
+          <div className="max-w-4xl mx-auto space-y-6">
+            <h1 className="text-2xl font-semibold text-gray-900">Settings</h1>
 
-            <Card className="mb-6">
+            <Card>
               <CardHeader>
                 <CardTitle>Profile</CardTitle>
                 <CardDescription>
@@ -152,6 +201,70 @@ export default function SettingsPage() {
                       className="w-full sm:w-auto"
                     >
                       {profileMutation.isPending ? "Saving..." : "Save Changes"}
+                    </Button>
+                  </form>
+                </Form>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Change Password</CardTitle>
+                <CardDescription>
+                  Update your password.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Form {...passwordForm}>
+                  <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-4">
+                    <FormField
+                      control={passwordForm.control}
+                      name="currentPassword"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Current Password</FormLabel>
+                          <FormControl>
+                            <Input type="password" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={passwordForm.control}
+                      name="newPassword"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>New Password</FormLabel>
+                          <FormControl>
+                            <Input type="password" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={passwordForm.control}
+                      name="confirmPassword"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Confirm New Password</FormLabel>
+                          <FormControl>
+                            <Input type="password" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <Button
+                      type="submit"
+                      disabled={passwordMutation.isPending}
+                      className="w-full sm:w-auto"
+                    >
+                      {passwordMutation.isPending ? "Updating..." : "Update Password"}
                     </Button>
                   </form>
                 </Form>

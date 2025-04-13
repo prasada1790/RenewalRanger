@@ -221,13 +221,33 @@ export function registerRoutes(app: Express): Server {
     res.json(sanitizedUsers);
   }));
 
-  app.put('/api/users/profile', isAuthenticated, asyncHandler(async (req, res) => {
+  app.put('/api/user/profile', isAuthenticated, asyncHandler(async (req, res) => {
     const data = profileFormSchema.parse(req.body);
     const updatedUser = await storage.updateUser(req.user.id, data);
     if (!updatedUser) {
       return res.status(404).json({ message: 'User not found' });
     }
-    res.json(updatedUser);
+    const { password, ...userWithoutPassword } = updatedUser;
+    res.json(userWithoutPassword);
+  }));
+
+  app.put('/api/user/password', isAuthenticated, asyncHandler(async (req, res) => {
+    const { currentPassword, newPassword } = req.body;
+    const user = await storage.getUser(req.user.id);
+    
+    if (!user || !(await comparePasswords(currentPassword, user.password))) {
+      return res.status(400).json({ message: 'Current password is incorrect' });
+    }
+
+    const hashedPassword = await hashPassword(newPassword);
+    const updatedUser = await storage.updateUser(req.user.id, { password: hashedPassword });
+    
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const { password, ...userWithoutPassword } = updatedUser;
+    res.json(userWithoutPassword);
   }));
 
   app.put('/api/admin/users/:id', isAdmin, asyncHandler(async (req, res) => {
