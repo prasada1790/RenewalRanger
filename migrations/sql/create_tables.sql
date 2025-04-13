@@ -49,6 +49,9 @@ CREATE TABLE IF NOT EXISTS renewables (
   FOREIGN KEY (assigned_to_id) REFERENCES users(id) ON DELETE SET NULL
 );
 
+-- Add amount column if it doesn't exist
+ALTER TABLE renewables ADD COLUMN IF NOT EXISTS amount DECIMAL(10,2) DEFAULT NULL;
+
 -- Reminder logs table
 CREATE TABLE IF NOT EXISTS reminder_logs (
   id INT AUTO_INCREMENT PRIMARY KEY,
