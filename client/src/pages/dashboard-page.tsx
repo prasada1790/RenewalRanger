@@ -203,12 +203,14 @@ export default function DashboardPage() {
                   value={stats?.clientCount || 0}
                   icon={<BriefcaseBusiness className="h-5 w-5" />}
                   color="primary"
+                  trend={calculateTrendFromPreviousMonth(stats?.clientCount, stats?.previousMonthStats?.clientCount)}
                 />
                 <StatCard
                   title="Active Renewals"
                   value={stats?.activeRenewablesCount || 0}
                   icon={<RefreshCcwDot className="h-5 w-5" />}
                   color="success"
+                  trend={calculateTrendFromPreviousMonth(stats?.activeRenewablesCount, stats?.previousMonthStats?.activeRenewablesCount)}
                 />
                 <StatCard
                   title="Upcoming Renewals"

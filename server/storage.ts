@@ -199,11 +199,20 @@ export class DatabaseStorage implements IStorage {
     const [itemType] = await db.select().from(itemTypes).where(eq(itemTypes.id, id));
     if (itemType) {
       try {
-        const intervals = typeof itemType.defaultReminderIntervals === 'string' 
-          ? JSON.parse(itemType.defaultReminderIntervals)
-          : Array.isArray(itemType.defaultReminderIntervals) 
-            ? itemType.defaultReminderIntervals 
-            : [30, 15, 7];
+        let intervals: number[];
+        if (typeof itemType.defaultReminderIntervals === 'string') {
+          intervals = JSON.parse(itemType.defaultReminderIntervals);
+        } else if (Array.isArray(itemType.defaultReminderIntervals)) {
+          intervals = itemType.defaultReminderIntervals;
+        } else {
+          intervals = [30, 15, 7];
+        }
+        
+        // Validate intervals are numbers and sort them
+        intervals = intervals
+          .map(Number)
+          .filter(n => !isNaN(n))
+          .sort((a, b) => b - a);
         
         return {
           ...itemType,
@@ -392,6 +401,10 @@ export class DatabaseStorage implements IStorage {
     activeRenewablesCount: number;
     upcomingRenewablesCount: number;
     expiredRenewablesCount: number;
+    previousMonthStats?: {
+      clientCount: number;
+      activeRenewablesCount: number;
+    };
   }> {
     const [clientsResult] = await db.select({ count: sql<number>`count(*)` }).from(clients);
 

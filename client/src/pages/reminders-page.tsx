@@ -70,10 +70,17 @@ export default function RemindersPage() {
     isLoading: logsLoading,
     error: logsError
   } = useQuery({
-    queryKey: [
-      '/api/reminder-logs/recent', //This line is changed.
-    ],
+    queryKey: ['/api/reminder-logs/recent'],
     enabled: true,
+    retry: false,
+    select: (data) => {
+      if (!Array.isArray(data)) return [];
+      return data.map(log => ({
+        ...log,
+        sentAt: new Date(log.sentAt),
+        sentAtFormatted: format(new Date(log.sentAt), "MMM d, yyyy h:mm a")
+      }));
+    }
   });
 
   // Query to get clients and item types for display

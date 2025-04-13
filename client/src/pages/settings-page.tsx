@@ -170,16 +170,24 @@ export default function SettingsPage() {
   }
 
   function onNotificationsSubmit(data: z.infer<typeof notificationsFormSchema>) {
-    notificationsMutation.mutate(data);
+    const { defaultCurrency, ...notificationSettings } = data;
+    
+    // Update both notifications and currency settings separately
+    notificationsMutation.mutate({
+      ...notificationSettings,
+      settings: {
+        ...user?.settings,
+        defaultCurrency
+      }
+    });
   }
 
   // Set initial form values
   React.useEffect(() => {
-    if (user?.settings?.defaultCurrency) {
-      notificationsForm.setValue('defaultCurrency', user.settings.defaultCurrency);
-    } else {
-      notificationsForm.setValue('defaultCurrency', 'INR');
-    }
+    notificationsForm.setValue('defaultCurrency', user?.settings?.defaultCurrency || 'INR');
+    notificationsForm.setValue('reminderEmails', user?.settings?.reminderEmails ?? true);
+    notificationsForm.setValue('expiryWarnings', user?.settings?.expiryWarnings ?? true);
+    notificationsForm.setValue('systemUpdates', user?.settings?.systemUpdates ?? false);
   }, [user]);
 
   return (
