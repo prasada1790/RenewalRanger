@@ -143,7 +143,13 @@ export default function SettingsPage() {
   // Notifications update mutation
   const notificationsMutation = useMutation({
     mutationFn: async (data: z.infer<typeof notificationsFormSchema>) => {
-      const res = await apiRequest("PUT", `/api/users/notifications`, data);
+      const { defaultCurrency, ...notificationSettings } = data;
+      const res = await apiRequest("PUT", `/api/users/notifications`, {
+        ...notificationSettings,
+        settings: {
+          defaultCurrency
+        }
+      });
       return await res.json();
     },
     onSuccess: () => {
