@@ -36,7 +36,7 @@ export function Sidebar({ isMobile = false, onCloseMobile }: SidebarProps) {
 
   const navItems = [
     {
-      name: "PanelsTopLeft",
+      name: "Dashboard",
       path: "/",
       icon: <PanelsTopLeft className="h-5 w-5" />,
       showAlways: true,
