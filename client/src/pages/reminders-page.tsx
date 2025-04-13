@@ -71,12 +71,10 @@ export default function RemindersPage() {
     error: logsError
   } = useQuery({
     queryKey: [
-      renewableId 
-        ? `/api/reminder-logs/${renewableId}` 
-        : '/api/reminder-logs/all'
+      '/api/reminder-logs',
+      renewableId
     ],
-    // If there's no specific API, we'll just show a message
-    enabled: true,
+    enabled: renewableFilter !== 'all',
   });
 
   // Query to get clients and item types for display

@@ -33,7 +33,7 @@ export default function DashboardPage() {
 
   // Query upcoming renewals
   const { data: upcomingRenewals, isLoading: renewalsLoading } = useQuery({
-    queryKey: ["/api/renewals/upcoming/30"],
+    queryKey: ["/api/renewables/upcoming/30"],
   });
 
   // Get clients for joining with renewals data

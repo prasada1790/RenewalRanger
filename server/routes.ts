@@ -248,9 +248,16 @@ export function registerRoutes(app: Express): Server {
 
 
   // Reminder logs API
-  app.get('/api/reminder-logs/:renewableId', isAuthenticated, asyncHandler(async (req, res) => {
-    const renewableId = parseInt(req.params.renewableId);
-    const logs = await storage.getReminderLogsByRenewableId(renewableId);
+  app.get('/api/reminder-logs', isAuthenticated, asyncHandler(async (req, res) => {
+    const renewableId = req.query.renewableId ? parseInt(req.query.renewableId as string) : null;
+    const logs = renewableId 
+      ? await storage.getReminderLogsByRenewableId(renewableId)
+      : await storage.getAllReminderLogs();
+    res.json(logs);
+  }));
+
+  app.get('/api/reminder-logs/recent', isAuthenticated, asyncHandler(async (req, res) => {
+    const logs = await storage.getRecentReminderLogs();
     res.json(logs);
   }));
 
