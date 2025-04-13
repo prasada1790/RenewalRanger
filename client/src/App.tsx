@@ -23,7 +23,7 @@ function Router() {
       <ProtectedRoute path="/item-types" component={ItemTypesPage} />
       <ProtectedRoute path="/reminders" component={RemindersPage} />
       <AdminRoute path="/users" component={UsersPage} />
-      {/* Removed settings route */}
+      <ProtectedRoute path="/settings" component={SettingsPage} />
       <Route path="/auth" component={AuthPage} />
       <Route component={NotFound} />
     </Switch>
