@@ -281,6 +281,7 @@ export default function RenewalsPage() {
       assignedToId: renewal.assignedToId || 0,
       startDate,
       endDate,
+      amount: renewal.amount || 0,
       reminderIntervals: renewal.reminderIntervals || [30, 15, 7],
       notes: renewal.notes || "",
       status: renewal.status,
@@ -514,6 +515,25 @@ export default function RenewalsPage() {
                       )}
                     />
                     
+                    <FormField
+                      control={createForm.control}
+                      name="amount"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Amount</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="number" 
+                              placeholder="e.g. 100.00" 
+                              {...field} 
+                              onChange={(e) => field.onChange(Number(e.target.value))}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <FormField
                         control={createForm.control}
@@ -671,6 +691,7 @@ export default function RenewalsPage() {
                       <TableHead>Type</TableHead>
                       <TableHead>Start Date</TableHead>
                       <TableHead>Expiry Date</TableHead>
+                      <TableHead>Amount</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Assigned To</TableHead>
                       <TableHead>Actions</TableHead>
@@ -814,6 +835,25 @@ export default function RenewalsPage() {
                       )}
                     />
                   </div>
+                  
+                  <FormField
+                    control={editForm.control}
+                    name="amount"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Amount</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            placeholder="e.g. 100.00" 
+                            {...field} 
+                            onChange={(e) => field.onChange(Number(e.target.value))}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   
                   <FormField
                     control={editForm.control}
