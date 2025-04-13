@@ -113,14 +113,18 @@ export default function DashboardPage() {
   }));
 
 
-  // Mock data for distribution chart (would be replaced with real API data)
-  const distributionData = [
-    { name: "Domain Names", percentage: 38, color: "bg-primary" },
-    { name: "Hosting Services", percentage: 25, color: "bg-green-500" },
-    { name: "SSL Certificates", percentage: 15, color: "bg-amber-500" },
-    { name: "Annual Maintenance", percentage: 12, color: "bg-red-500" },
-    { name: "Software Licenses", percentage: 10, color: "bg-purple-500" }
-  ];
+  // Calculate real distribution data
+  const distributionData = itemTypes?.map((type, index) => {
+    const typeRenewables = renewables.filter((r: any) => r.typeId === type.id);
+    const percentage = renewables.length ? Math.round((typeRenewables.length / renewables.length) * 100) : 0;
+    
+    const colors = ["bg-primary", "bg-green-500", "bg-amber-500", "bg-red-500", "bg-purple-500"];
+    return {
+      name: type.name,
+      percentage,
+      color: colors[index % colors.length]
+    };
+  }) || [];
 
   const handleCalendarEventClick = (event: any) => {
     toast({

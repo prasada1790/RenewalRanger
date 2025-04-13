@@ -230,6 +230,22 @@ export function registerRoutes(app: Express): Server {
     res.json(updatedUser);
   }));
 
+  app.put('/api/admin/users/:id', isAdmin, asyncHandler(async (req, res) => {
+    const id = parseInt(req.params.id);
+    const data = insertUserSchema.partial().parse(req.body);
+    const updatedUser = await storage.updateUser(id, data);
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(updatedUser);
+  }));
+
+  app.delete('/api/admin/users/:id', isAdmin, asyncHandler(async (req, res) => {
+    const id = parseInt(req.params.id);
+    await storage.deleteUser(id);
+    res.status(200).send();
+  }));
+
 
   // Reminder logs API
   app.get('/api/reminder-logs/:renewableId', isAuthenticated, asyncHandler(async (req, res) => {

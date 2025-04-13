@@ -141,16 +141,16 @@ export class DatabaseStorage implements IStorage {
       const connection = await pool.getConnection();
       try {
         await connection.beginTransaction();
-        
+
         // Update renewables to remove this user from assigned_to_id
         await connection.query('UPDATE renewables SET assigned_to_id = NULL WHERE assigned_to_id = ?', [id]);
-        
+
         // Delete reminder logs for this user
         await connection.query('DELETE FROM reminder_logs WHERE sent_to_id = ?', [id]);
-        
+
         // Delete the user
         await connection.query('DELETE FROM users WHERE id = ?', [id]);
-        
+
         await connection.commit();
         return true;
       } catch (err) {
@@ -197,7 +197,15 @@ export class DatabaseStorage implements IStorage {
   // Item type operations
   async getItemType(id: number): Promise<ItemType | undefined> {
     const [itemType] = await db.select().from(itemTypes).where(eq(itemTypes.id, id));
-    return itemType;
+    if (itemType) {
+      return {
+        ...itemType,
+        defaultReminderIntervals: Array.isArray(itemType.defaultReminderIntervals) 
+          ? itemType.defaultReminderIntervals 
+          : JSON.parse(itemType.defaultReminderIntervals as string)
+      };
+    }
+    return undefined;
   }
 
   async createItemType(itemType: InsertItemType): Promise<ItemType> {
@@ -219,13 +227,13 @@ export class DatabaseStorage implements IStorage {
         'INSERT INTO item_types (name, default_renewal_period, default_reminder_intervals) VALUES (?, ?, ?)',
         [data.name, data.defaultRenewalPeriod, data.defaultReminderIntervals]
       );
-      
+
       const insertId = Number(result.insertId);
       const [createdType] = await connection.query(
         'SELECT * FROM item_types WHERE id = ?',
         [insertId]
       );
-      
+
       await connection.commit();
       return {
         ...createdType[0],
